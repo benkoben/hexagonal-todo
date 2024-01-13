@@ -68,7 +68,7 @@ Ref: Task.id > List.id // many-to-ne
 Ref: Subtask.id > Task.id
 
 ```
-![[images/database.png]]
+![database](images/database.png)
 
 # Core libraries
 
