@@ -76,3 +76,23 @@ Handling HTTP requests andresponses - Gin
 Postgres SQL with pgx driver
 slog for logging
 User interface - Bubble tea 
+
+# Directory tree
+
+```bash
+.
+├── config             # code that configures the service when started
+├── docs               # API documentation
+├── images
+│   └── database.png
+├── README.md
+└── service
+    ├── adapter
+    │   └── postgres   # adapter for postgresql
+    └── core
+        ├── domain
+        ├── port       # contacts that adapters have to fulfill
+        ├── service       # core service logic (business logic) 
+        └── util       # utility functions that are reused throughout the `service` package
+```
+
