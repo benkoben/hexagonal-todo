@@ -3,7 +3,7 @@ package port
 import (
     "context"
 
-    "github.com/benkoben/hexagonal-todo/service/core/domain"
+    "github.com/benkoben/hexagonal-todo/internal/core/domain"
 )
 
 

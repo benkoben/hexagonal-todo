@@ -3,7 +3,7 @@ package port
 import (
     "context"
 
-    "github.com/benkoben/hexagonal-todo/service/core/domain"
+    "github.com/benkoben/hexagonal-todo/internal/core/domain"
 )
 
 // TaskRepository is an interface for interacting with our task related data

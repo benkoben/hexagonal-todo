@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/benkoben/hexagonal-todo/service/core/domain"
-	"github.com/benkoben/hexagonal-todo/service/adapter/postgres"
+	"github.com/benkoben/hexagonal-todo/internal/core/domain"
+	"github.com/benkoben/hexagonal-todo/internal/adapter/postgres"
 )
 
 // TODO: Do I need to account for any context.Deadlines?

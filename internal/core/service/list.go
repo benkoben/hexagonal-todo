@@ -4,9 +4,8 @@ import (
 	"context"
 	"time"
 
-	"github.com/benkoben/hexagonal-todo/core/domain"
-	"github.com/benkoben/hexagonal-todo/core/port"
-	"github.com/benkoben/hexagonal-todo/core/util"
+	"github.com/benkoben/hexagonal-todo/internal/core/domain"
+	"github.com/benkoben/hexagonal-todo/internal/core/port"
 )
 
 const (
