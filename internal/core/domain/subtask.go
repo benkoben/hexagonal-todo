@@ -4,7 +4,7 @@ import (
     "time"
 )
 
-type Task struct {
+type Subtask struct {
     Id int64 `json:"id"`
     Name string `json:"name"`
     Completed bool `json:"completed"`

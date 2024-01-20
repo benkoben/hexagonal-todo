@@ -21,9 +21,9 @@ type TodoServiceOptions struct {
   Its purpose is to provide access to lists, task and subtask repository systems.
 */
 type TodoService struct {
-   listRepo port.ListRepository 
-   taskRepo port.TaskRepository 
-   subtaskRepo port.SubTaskRepository 
+   listRepo *port.ListRepository 
+   taskRepo *port.TaskRepository 
+   subtaskRepo *port.SubTaskRepository 
    timeout time.Duration
 }
 
@@ -45,7 +45,7 @@ func NewTodoService(opts *TodoServiceOptions, listRepo *port.ListRepository, tas
 
 func (t *TodoService) CreateList(ctx context.Context, list *domain.List) (*domain.List, error){
     createdAt := time.Now()
-    list.createdAt = createdAt
+    list.CreatedAt = createdAt
     
     deadline := time.Now().Add(time.Second * t.timeout)
     ctx, cancelCtx := context.WithDeadline(ctx, deadline)
@@ -66,14 +66,14 @@ func (t *TodoService) GetListById(ctx context.Context, id int64) (*domain.List, 
 
     list, err := t.GetListById(ctx, id) 
     if err != nil {
-        return domain.List{}, err
+        return &domain.List{}, err
     }
 
     return list, nil
 }
 
 
-func (t *TodoService) ListLists(ctx context.Context) ([]*domain.List, error){
+func (t *TodoService) ListLists(ctx context.Context) ([]domain.List, error){
 
     deadline := time.Now().Add(time.Second * t.timeout)
     ctx, cancelCtx := context.WithDeadline(ctx, deadline)
@@ -96,7 +96,7 @@ func (t *TodoService) DeleteListById(ctx context.Context, id int64)(*domain.List
 
     list, err := t.DeleteListById(ctx, id) 
     if err != nil {
-        return domain.List{}, err
+        return &domain.List{}, err
     }
 
     return list, nil
