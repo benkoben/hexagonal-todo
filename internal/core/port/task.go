@@ -17,6 +17,9 @@ type TaskRepository interface {
     // List retrieves all lists items from the database
     ListTasks(ctx context.Context) ([]*domain.List, error)
 
+    // UpdateListById modifies an existing list in the database
+    UpdateTaskById(ctx context.Context, id int64, updateAttrs domain.Task)(*domain.Task, error)
+
     // Removes a list item from the database by id
 	DeleteTaskById(ctx context.Context, id int64)(*domain.List, error)
 }
@@ -32,6 +35,9 @@ type TaskService interface {
 
     // Retrieve all existing lists
     ListTasks(ctx context.Context) ([]*domain.List, error)
+
+    // Update an existing List 
+    UpdateTask(ctx context.Context, id int64, updateAttrs domain.Task)(*domain.Task, error)
 
     // Delete a list by id
 	DeleteTask(ctx context.Context, id int64)()

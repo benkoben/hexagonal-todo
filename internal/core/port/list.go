@@ -16,7 +16,10 @@ type ListRepository interface {
 	GetListById(ctx context.Context, id int64) (*domain.List, error)
 
     // List retrieves all lists items from the database
-    ListLists(ctx context.Context) ([]*domain.List, error)
+    GetLists(ctx context.Context) ([]*domain.List, error)
+
+    // UpdateListById modifies an existing list in the database
+    UpdateListById(ctx context.Context, id int64, updateAttrs domain.List)(*domain.List, error)
 
     // Removes a list item from the database by id
 	DeleteListById(ctx context.Context, id int64)(*domain.List, error)
@@ -32,8 +35,11 @@ type ListService interface {
 	GetListById(ctx context.Context, id int64) (*domain.List, error)
 
     // Retrieve all existing lists
-    ListLists(ctx context.Context) ([]*domain.List, error)
+    GetLists(ctx context.Context) ([]*domain.List, error)
+
+    // Update an existing List 
+    UpdateList(ctx context.Context, id int64, updateAttrs domain.List)(*domain.List, error)
 
     // Delete a list by id
-	DeleteList(ctx context.Context, id int64)()
+	DeleteList(ctx context.Context, id int64)(*domain.List, error)
 }

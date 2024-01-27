@@ -15,7 +15,10 @@ type SubTaskRepository interface {
 	GetTaskById(ctx context.Context, id int64) (*domain.List, error)
 
     // List retrieves all lists items from the database
-    ListTasks(ctx context.Context) ([]*domain.List, error)
+    GetTasks(ctx context.Context) ([]*domain.List, error)
+
+    // UpdateListById modifies an existing list in the database
+    UpdateSubTaskById(ctx context.Context, id int64, updateAttrs domain.Subtask)(*domain.Subtask, error)
 
     // Removes a list item from the database by id
 	DeleteTaskById(ctx context.Context, id int64)(*domain.List, error)
@@ -31,8 +34,11 @@ type SubTaskService interface {
 	GetTask(ctx context.Context, id int64) (*domain.List, error)
 
     // Retrieve all existing lists
-    ListTasks(ctx context.Context) ([]*domain.List, error)
+    GetTasks(ctx context.Context) ([]*domain.List, error)
+
+    // Update an existing List 
+    UpdateSubTask(ctx context.Context, id int64, updateAttrs domain.Subtask)(*domain.Subtask, error)
 
     // Delete a list by id
-	DeleteTask(ctx context.Context, id int64)()
+	DeleteTask(ctx context.Context, id int64)(*domain.Task, error)
 }
