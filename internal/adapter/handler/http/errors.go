@@ -6,6 +6,7 @@ const (
     errInternalServer = "Internal server error."
     errMethodNotAllowed = "Method not allowed."
     errNotAuthorized = "Not authorized." 
+    errNotFound = "Not found"
 )
 
 type Error struct {

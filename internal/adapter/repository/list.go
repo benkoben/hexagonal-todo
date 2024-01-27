@@ -2,26 +2,43 @@ package repository
 
 import (
 	"context"
+	"time"
 
-	"github.com/benkoben/hexagonal-todo/internal/core/domain"
 	"github.com/benkoben/hexagonal-todo/internal/adapter/repository/postgres"
+	"github.com/benkoben/hexagonal-todo/internal/core/domain"
 )
 
-// TODO: Do I need to account for any context.Deadlines?
+const (
+    defaultTimeout = time.Second * 10
+)
 
-type ListRepository struct {
-    db *postgres.DB
+type ListRepositoryOptions struct {
+    // Timeout sets the amount of time a query can take before context.WithTimeout times out.
+    Timeout time.Duration
 }
 
-func NewListRepository(db *postgres.DB) *ListRepository {
+// TODO: Do I need to account for any context.Deadlines?
+type ListRepository struct {
+    db *postgres.DB
+    queryTimeout time.Duration
+}
+
+func NewListRepository(db *postgres.DB, o ListRepositoryOptions) *ListRepository {
+    if o.Timeout == 0 {
+        o.Timeout = defaultTimeout
+    }
+
     return &ListRepository{
-        db,
+        db: db,
+        queryTimeout: o.Timeout,
     }
 }
 
 func (lr *ListRepository)CreateList(ctx context.Context, list *domain.List) (*domain.List, error) {
-
     // Build QueryStatement 
+    ctx, cancel := context.WithTimeout(ctx, lr.queryTimeout)
+    defer cancel()
+
     listStatement := lr.db.QueryBuilder.Insert("List").
                         Columns("name", "created_at").
                         Values(list.Name, list.CreatedAt).
@@ -34,7 +51,7 @@ func (lr *ListRepository)CreateList(ctx context.Context, list *domain.List) (*do
     }
 
     // Run Query on database
-    lr.db.QueryRow(query).Scan(list)
+    lr.db.QueryRowEx(ctx, query, nil, nil).Scan(list)
     // Scan and update list
 
     // Return list

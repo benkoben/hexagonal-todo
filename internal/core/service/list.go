@@ -3,38 +3,70 @@ package todo
 import (
 	"context"
 	"time"
+    "fmt"
 
 	"github.com/benkoben/hexagonal-todo/internal/core/domain"
 	"github.com/benkoben/hexagonal-todo/internal/core/port"
 )
 
-const (
-    defaultServiceTimeOut = time.Second * 30
-)
 
+type ListServiceOptions struct {
+    // Timeout is used to control how long a backend query can take before it times out 
+    Timeout time.Duration
+}
 
-func (t *TodoService) CreateList(ctx context.Context, list *domain.List) (*domain.List, error){
+type ListService struct {
+    // Interface which implements accessing data in list repository
+    ListRepo port.ListRepository
+    // Timeout controls how long a query to the repository should take at most
+    Timeout time.Duration
+}
+
+func NewListService(listRepo port.ListRepository, o ListServiceOptions) (*ListService, error){
+    if o.Timeout == 0 {
+        o.Timeout = defaultServiceTimeOut
+    }        
+
+    return &ListService{
+        ListRepo: listRepo,
+        Timeout: o.Timeout,
+    }, nil
+}
+
+func (s *ListService) CreateList(ctx context.Context, list *domain.List) (*domain.List, error){
     createdAt := time.Now()
     list.CreatedAt = createdAt
-    
-    deadline := time.Now().Add(time.Second * t.timeout)
-    ctx, cancelCtx := context.WithDeadline(ctx, deadline)
-    defer cancelCtx()
-    
-    _, err := t.CreateList(ctx,list)
+   
+    _, err := s.ListRepo.CreateList(ctx,list)
     if err != nil {
-        return list, err
+        return list, fmt.Errorf("could not create list: %v", err)
     }
 
     return list, nil
 }
 
-func (t *TodoService) GetListById(ctx context.Context, id int64) (*domain.List, error){
-    deadline := time.Now().Add(time.Second * t.timeout)
-    ctx, cancelCtx := context.WithDeadline(ctx, deadline)
-    defer cancelCtx()
+func (s *ListService) GetListById(ctx context.Context, id int64) (*domain.List, error){
+    list, err := s.ListRepo.GetListById(ctx, id) 
+    if err != nil {
+        return &domain.List{}, fmt.Errorf("GetListById could not fetch list from repository: %v", err)
+    }
 
-    list, err := t.GetListById(ctx, id) 
+    return list, nil
+}
+
+
+func (s *ListService) GetLists(ctx context.Context) ([]*domain.List, error){
+    lists, err := s.ListRepo.GetLists(ctx)
+    if err != nil {
+        return []*domain.List{}, err
+    }
+
+    return lists, nil
+}
+
+func (s *ListService) UpdateList(ctx context.Context, id int64, updateAttrs domain.List)(*domain.List, error){
+
+    list, err := s.ListRepo.UpdateListById(ctx, id, updateAttrs) 
     if err != nil {
         return &domain.List{}, err
     }
@@ -42,28 +74,9 @@ func (t *TodoService) GetListById(ctx context.Context, id int64) (*domain.List, 
     return list, nil
 }
 
+func (s *ListService) DeleteList(ctx context.Context, id int64)(*domain.List, error){
 
-func (t *TodoService) ListLists(ctx context.Context) ([]domain.List, error){
-
-    deadline := time.Now().Add(time.Second * t.timeout)
-    ctx, cancelCtx := context.WithDeadline(ctx, deadline)
-    defer cancelCtx()
-
-    lists, err := t.ListLists(ctx)
-    if err != nil {
-        return []domain.List{}, err
-    }
-
-    return lists, nil
-}
-
-func (t *TodoService) DeleteListById(ctx context.Context, id int64)(*domain.List, error){
-    
-    deadline := time.Now().Add(time.Second * t.timeout)
-    ctx, cancelCtx := context.WithDeadline(ctx, deadline)
-    defer cancelCtx()
-
-    list, err := t.DeleteListById(ctx, id) 
+    list, err := s.ListRepo.DeleteListById(ctx, id) 
     if err != nil {
         return &domain.List{}, err
     }

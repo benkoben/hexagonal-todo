@@ -14,7 +14,7 @@ import (
 var (
 	defaultHost                  = "localhost"
 	defaultPort           uint16 = 5432
-	defaultTimeout               = time.Second * 30
+	defaultAquireTimeout               = time.Second * 30
 	defaultMaxConnections        = 5
 )
 
@@ -32,16 +32,18 @@ type PostgresClientOptions struct {
 	// Name of the database
 	Database string
 	// Max wait time when all connetions are busy
-	Timeout time.Duration
+	AcquireTimeout time.Duration
 	// Max simultaneous connections to use, defaults to 5, must be at least 2
 	MaxConnections int
 }
 
+// Wrap Connpool and squirrel statement builder
 type DB struct {
 	*pgx.ConnPool
 	QueryBuilder *sq.StatementBuilderType
 }
 
+// Construct DB
 func NewDB(ctx context.Context, opt *PostgresClientOptions) (*DB, error) {
 	if opt.Host == "" {
 		opt.Host = defaultHost
@@ -55,8 +57,8 @@ func NewDB(ctx context.Context, opt *PostgresClientOptions) (*DB, error) {
 		opt.MaxConnections = defaultMaxConnections
 	}
 
-	if opt.Timeout == 0 {
-		opt.Timeout = defaultTimeout
+	if opt.AcquireTimeout == 0 {
+		opt.AcquireTimeout = defaultAquireTimeout
 	}
 
 	if opt.Username == "" {
@@ -80,7 +82,7 @@ func NewDB(ctx context.Context, opt *PostgresClientOptions) (*DB, error) {
 			TLSConfig: opt.TLSConfig,
 		},
 		MaxConnections: opt.MaxConnections,
-		AcquireTimeout: opt.Timeout,
+		AcquireTimeout: opt.AcquireTimeout,
 	}
     
 	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)

@@ -9,36 +9,36 @@ import (
 // SubTaskRepository is an interface for interacting with our subtask related data
 type SubTaskRepository interface {
     // Inserts a list item to the database
-	CreateTask(ctx context.Context, list *domain.List) (*domain.List, error)
+	CreateSubtask(ctx context.Context, list *domain.Subtask) (*domain.Subtask, error)
 
     // Retrieves a list item from the database by id
-	GetTaskById(ctx context.Context, id int64) (*domain.List, error)
+	GetSubtaskById(ctx context.Context, id int64) (*domain.Subtask, error)
 
     // List retrieves all lists items from the database
-    GetTasks(ctx context.Context) ([]*domain.List, error)
+    GetSubtasks(ctx context.Context) ([]*domain.Subtask, error)
 
     // UpdateListById modifies an existing list in the database
-    UpdateSubTaskById(ctx context.Context, id int64, updateAttrs domain.Subtask)(*domain.Subtask, error)
+    UpdateSubtaskById(ctx context.Context, id int64, updateAttrs domain.Subtask)(*domain.Subtask, error)
 
     // Removes a list item from the database by id
-	DeleteTaskById(ctx context.Context, id int64)(*domain.List, error)
+	DeleteSubTaskById(ctx context.Context, id int64)(*domain.Subtask, error)
 }
 
 
 // SubTaskService is an interface for interacting with our subtask business logic
 type SubTaskService interface {
     // Creates a new list 
-	CreateTask(ctx context.Context, list *domain.List) (*domain.List, error)
+	CreateSubtask(ctx context.Context, list *domain.Subtask) (*domain.Subtask, error)
 
     // Get a list by id
-	GetTask(ctx context.Context, id int64) (*domain.List, error)
+	GetSubtask(ctx context.Context, id int64) (*domain.Subtask, error)
 
     // Retrieve all existing lists
-    GetTasks(ctx context.Context) ([]*domain.List, error)
+    GetSubtasks(ctx context.Context) ([]*domain.Subtask, error)
 
     // Update an existing List 
     UpdateSubTask(ctx context.Context, id int64, updateAttrs domain.Subtask)(*domain.Subtask, error)
 
     // Delete a list by id
-	DeleteTask(ctx context.Context, id int64)(*domain.Task, error)
+	DeleteSubtask(ctx context.Context, id int64)(*domain.Task, error)
 }
