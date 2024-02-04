@@ -1,0 +1,48 @@
+version: "3"
+
+dotenv: ['.env', '{{.ENV}}/.env.', '{{.HOME}}/.env']
+
+vars:
+  DBML_FILE: "./schema.dbml"
+  DB_CONNECTION_STRING: "postgres://{{.DB_USERNAME}}:{{.DB_PASSWORD}}@{{.DB_HOST}}:{{.DB_PORT}}/{{.DB_DATABASE}}?sslmode=disable"
+
+tasks:
+  default:
+    cmds:
+      - task: service:up
+    desc: "Getting started"
+
+  install:
+    cmds:
+      - go mod download
+    desc: "Install dependencies"
+
+  service:up:
+    cmd: docker-compose up -d
+    desc: "Starting services"
+
+  service:down:
+    cmd: docker-compose down
+
+  db:docs:
+    cmd: dbdocs build schemas/{{.DBML_FILE}}
+    requires:
+      vars:
+        - DBML_FILE
+    desc: "Generate database documentation from DBML file"
+
+  db:create:
+    desc: "Create database if not exists"
+    cmd: docker exec -it todo_postgres sh -c "psql -U {{.DB_USERNAME}} -c 'SELECT 1' -d {{.DB_DATABASE}} &>/dev/null || psql -U {{.DB_USERNAME}} -c 'CREATE DATABASE {{.DB_DATABASE}}' -d postgres"
+    requires:
+      vars:
+        - DB_USERNAME
+        - DB_DATABASE
+
+  db:drop:
+    desc: "Drop database"
+    cmd: docker exec -it todo_postgres sh -c "psql -U {{.DB_USERNAME}} -c 'DROP DATABASE {{.DB_DATABASE}}' -d postgres"
+    requires:
+      vars:
+        - DB_USERNAME
+        - DB_DATABASE

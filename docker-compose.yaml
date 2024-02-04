@@ -3,17 +3,26 @@ version: '3.1'
 
 services:
 
-  db:
-    image: postgres
-    restart: always
-    environment:
-      POSTGRES_USER: pgadmin
-      POSTGRES_PASSWORD: Syp9393
+  postgres:
+    image: postgres:16.1-alpine3.19
+    container_name: todo_postgres
     ports:
-      - 5555:5432
+      - 5432:5432
+        # volumes:
+        #   - postgres:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_DATABASE}
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -d ${DB_DATABASE} -U ${DB_USERNAME}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
 
   adminer:
     image: adminer
+    container_name: adminer
     restart: always
     ports:
       - 8080:8080

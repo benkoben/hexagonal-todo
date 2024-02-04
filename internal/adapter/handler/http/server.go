@@ -9,7 +9,6 @@ import (
     "syscall"
     "time"
 	"github.com/gin-gonic/gin"
-    service "github.com/benkoben/hexagonal-todo/internal/core/service"
 )
 
 const (
@@ -38,7 +37,7 @@ type server struct {
     log logger
 }
 
-func NewServer(o ServerOptions, ls *service.ListService) (*server, error) {
+func NewServer(o ServerOptions) (*server, error) {
     if o.Address == "" {
         o.Address = defaultAddr
     }
@@ -55,17 +54,14 @@ func NewServer(o ServerOptions, ls *service.ListService) (*server, error) {
         return nil, fmt.Errorf("log field cannot be nil in http server options")
     }
 
-    bindSocket := fmt.Sprintf("%s/%s", o.Address, o.Port)
-    router, err := NewRouter(service.ListService{})
-    if err != nil {
-        return nil, fmt.Errorf("could not create new router: %v", err)
-    }
+    bindSocket := fmt.Sprintf("%s:%s", o.Address, o.Port)
     
     return &server{
         srv: &http.Server{
             Addr: bindSocket,
-            Handler: router.Engine,
+            Handler: o.Router,
         },
+        log: o.Log,
     }, nil
 }
 
@@ -92,7 +88,7 @@ func (s server)stop() {
 
 	s.srv.SetKeepAlivesEnabled(false)
 	if err := s.srv.Shutdown(ctx); err != nil {
-		s.log.Printf("Server shutdown: %v.\n", err)
+		s.log.Printf("server shutdown: %v.\n", err)
 	}
 }
 

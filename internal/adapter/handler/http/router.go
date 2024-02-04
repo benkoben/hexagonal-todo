@@ -1,7 +1,6 @@
 package http
 
 import (
-	service "github.com/benkoben/hexagonal-todo/internal/core/service"
 	"github.com/gin-gonic/gin"
 )
 
@@ -10,15 +9,15 @@ type Router struct {
 }
 
 func NewRouter(
-        listService service.ListService,
+        listHandler ListHandler,
     ) (*Router, error) {
 
     // TODO: learn CORS and implement in router
     router := gin.Default()
     v1 := router.Group("/v1") 
-    v1.GET("/list/:id", listService.GetListById)
-    v1.GET("/lists", listService.GetLists)
-    v1.POST("/list", listService.CreateList)
+    v1.GET("/list/:id", listHandler.GetListById)
+    v1.GET("/lists", listHandler.GetLists)
+    v1.POST("/list", listHandler.CreateList)
 
     return &Router{
         router,

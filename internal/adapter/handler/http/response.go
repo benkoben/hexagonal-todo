@@ -2,7 +2,6 @@ package http
 
 import (
     "encoding/json"
-     "github.com/benkoben/hexagonal-todo/internal/core/domain"
 )
 // response wraps around JSON and Code.
 type response interface {

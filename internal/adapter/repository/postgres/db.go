@@ -5,9 +5,9 @@ import (
 	"time"
     "context"
 
-	"crypto/tls"
 	sq "github.com/Masterminds/squirrel"
-	"github.com/jackc/pgx"
+    "github.com/jackc/pgx/v5/pgconn"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 // default values
@@ -16,6 +16,7 @@ var (
 	defaultPort           uint16 = 5432
 	defaultAquireTimeout               = time.Second * 30
 	defaultMaxConnections        = 5
+    defaultSSLMode               = "disable"
 )
 
 type PostgresClientOptions struct {
@@ -27,19 +28,19 @@ type PostgresClientOptions struct {
 	Host string
 	// Port on which postgres is running on
 	Port uint16
-	// tls.Config. TLS is disabled if nil
-	TLSConfig *tls.Config
 	// Name of the database
 	Database string
 	// Max wait time when all connetions are busy
 	AcquireTimeout time.Duration
 	// Max simultaneous connections to use, defaults to 5, must be at least 2
 	MaxConnections int
+    // ssl mode enable or disable
+    SSLMode string
 }
 
 // Wrap Connpool and squirrel statement builder
 type DB struct {
-	*pgx.ConnPool
+	*pgxpool.Pool
 	QueryBuilder *sq.StatementBuilderType
 }
 
@@ -73,40 +74,43 @@ func NewDB(ctx context.Context, opt *PostgresClientOptions) (*DB, error) {
 		return &DB{}, fmt.Errorf("database name cannot be empty")
 	}
 
-	cfg := pgx.ConnPoolConfig{
-		ConnConfig: pgx.ConnConfig{
-			Port:      opt.Port,
-			Database:  opt.Database,
-			User:      opt.Username,
-			Password:  opt.Password,
-			TLSConfig: opt.TLSConfig,
-		},
-		MaxConnections: opt.MaxConnections,
-		AcquireTimeout: opt.AcquireTimeout,
-	}
+    if opt.SSLMode == "" {
+        opt.SSLMode = defaultSSLMode
+    }
+
+    // postgres://postgres:123456@127.0.0.1:5432/dummy
+	url := fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=%s",
+		opt.Username,
+        opt.Password,
+        opt.Host,
+        opt.Port,
+        opt.Database,
+        opt.SSLMode,
+	)
+
+    fmt.Println(url)
     
 	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
 
-	connpool, err := pgx.NewConnPool(cfg)
+	db, err := pgxpool.New(ctx, url)
 
 	if err != nil {
 		return nil, fmt.Errorf("could not create database connpool: %v", err)
 	}
-
-    // Acquire an explicit connection to database 
-    conn, err := connpool.Acquire()
-    if err != nil {
-        return nil, fmt.Errorf("could not aquire database connection")
-    }
     
-    // Ping data base with aquired connection to verifiy reachability
-    err = conn.Ping(ctx)
+    err = db.Ping(ctx)
     if err != nil {
         return nil, fmt.Errorf("unsuccessful ping to database")
     }
 
 	return &DB{
-        ConnPool: connpool,
-		QueryBuilder: &psql,
+        db,
+		&psql,
 	}, nil
+}
+
+// ErrorCode returns the error code of the given error
+func (db *DB) ErrorCode(err error) string {
+	pgErr := err.(*pgconn.PgError)
+	return pgErr.Code
 }

@@ -10,11 +10,6 @@ import (
 )
 
 
-type ListServiceOptions struct {
-    // Timeout is used to control how long a backend query can take before it times out 
-    Timeout time.Duration
-}
-
 type ListService struct {
     // Interface which implements accessing data in list repository
     ListRepo port.ListRepository
@@ -22,14 +17,9 @@ type ListService struct {
     Timeout time.Duration
 }
 
-func NewListService(listRepo port.ListRepository, o ListServiceOptions) (*ListService, error){
-    if o.Timeout == 0 {
-        o.Timeout = defaultServiceTimeOut
-    }        
-
+func NewListService(listRepo port.ListRepository) (*ListService, error){
     return &ListService{
         ListRepo: listRepo,
-        Timeout: o.Timeout,
     }, nil
 }
 

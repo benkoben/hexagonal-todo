@@ -3,6 +3,7 @@ package http
 // TODO: Add logger so that we can catch issues on the backend
 
 import (
+    "fmt"
 	"context"
 	"net/http"
 	"strconv"
@@ -16,7 +17,13 @@ type ListHandler struct {
     svc port.ListService 
 }
 
-func (lh ListHandler)CreateList(c *gin.Context){
+func NewListHandler(svc port.ListService) *ListHandler {
+    return &ListHandler{
+        svc: svc,
+    }
+}
+
+func (lh ListHandler)CreateList(c *gin.Context) {
     var list domain.List
     ctx := context.Background()
     // Marshal payload into a domain.List struct
@@ -25,6 +32,7 @@ func (lh ListHandler)CreateList(c *gin.Context){
     } 
 
     repositoryResponse, err := lh.svc.CreateList(ctx, &list)
+    fmt.Printf("Error creating list: %v", err)
     if err != nil {
         write(c.Writer, newError(errInternalServer, http.StatusInternalServerError))
     }

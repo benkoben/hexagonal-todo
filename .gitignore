@@ -1,0 +1,3 @@
+# exclude local development files
+.env
+notes.txt

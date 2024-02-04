@@ -1,22 +1,26 @@
-CREATE TABLE List (
-    id SERIAL PRIMARY KEY,
-    name TEXT NOT NULL,
-    created_at DATE NOT NULL
+CREATE TABLE "list" (
+  "id" SERIAL PRIMARY KEY,
+  "name" varchar,
+  "created_at" timestamp
 );
 
-CREATE TABLE Task (
-    id SERIAL PRIMARY KEY,
-    parent INTEGER REFERENCES List(id) on DELETE CASCADE,
-    name TEXT NOT NULL,
-    description TEXT NOT NULL,
-    completed BOOLEAN NOT NULL,
-    created_at DATE NOT NULL
-)
+CREATE TABLE "task" (
+  "id" SERIAL PRIMARY KEY,
+  "listid" integer,
+  "name" varchar,
+  "description" text,
+  "completed" bool,
+  "created_at" timestamp
+);
 
-CREATE TABLE Subtask (
-    id SERIAL PRIMARY KEY,
-    parent INTEGER REFERENCES Task(id) on DELETE CASCADE,
-    name TEXT NOT NULL,
-    completed BOOLEAN NOT NULL,
-    created_at DATE NOT NULL
-)
+CREATE TABLE "subtask" (
+  "id" SERIAL,
+  "name" varchar,
+  "created_at" timestamp,
+  "completed" bool
+);
+
+ALTER TABLE "task" ADD FOREIGN KEY ("id") REFERENCES "list" ("id");
+
+ALTER TABLE "subtask" ADD FOREIGN KEY ("id") REFERENCES "task" ("id");
+

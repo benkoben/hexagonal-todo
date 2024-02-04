@@ -1,0 +1,26 @@
+Table List {
+  id integer [primary key]
+  name varchar
+  created_at timestamp
+}
+
+Table Task {
+  id integer [primary key]
+  listid integer
+  name varchar
+  description text
+  completed bool
+  created_at timestamp
+}
+
+Table Subtask {
+  id integer
+  name varchar
+  created_at timestamp
+  completed bool
+}
+
+Ref: Task.id > List.id // many-to-ne
+
+Ref: Subtask.id > Task.id
+
